@@ -1,0 +1,89 @@
+/*
+ * app.overlay - NUCLEO-F767ZI flash layout for the project A/B bootloader
+ *
+ * Author:  Sandesh Ghimire <sandesh@soccentric.com>
+ * Date:    2026-11-03
+ * Target:  NUCLEO-F767ZI
+ * SRS:     ZBT-001, ZBT-006, ZSAFE-001/003
+ *
+ * The board devicetree describes an MCUboot-style layout.  ZDEMO uses the
+ * project bootloader layout instead (SRS-BOOT-F767 section 3):
+ *
+ *   0x08000000  bootloader, sectors 0-1, 32 KB, read-only
+ *   0x08008000  metadata, sector 2, 16 KB
+ *   0x0800C000  application slot, sectors 3-11, 976 KB
+ *
+ * Bank swapping maps either bank at 0x08000000, so the same overlay and
+ * image work for slot A and slot B.
+ */
+
+/delete-node/ &boot_partition;
+/delete-node/ &storage_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &slot1_partition;
+/delete-node/ &scratch_partition;
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "bootloader";
+			reg = <0x00000000 0x00008000>;
+			read-only;
+		};
+
+		app_meta_partition: partition@8000 {
+			label = "app-meta";
+			reg = <0x00008000 0x00004000>;
+		};
+
+		slot0_partition: partition@c000 {
+			label = "app-slot";
+			reg = <0x0000c000 0x000f4000>;
+		};
+	};
+};
+
+/* ZSAFE-003: only the LEDs, B1 and USART3 are used. */
+&usart1 {
+	status = "disabled";
+};
+
+&usart2 {
+	status = "disabled";
+};
+
+&usart6 {
+	status = "disabled";
+};
+
+&uart4 {
+	status = "disabled";
+};
+
+&uart5 {
+	status = "disabled";
+};
+
+&uart7 {
+	status = "disabled";
+};
+
+&uart8 {
+	status = "disabled";
+};
+
+&mac {
+	status = "disabled";
+};
+
+&usbotg_fs {
+	status = "disabled";
+};
+
+&usbotg_hs {
+	status = "disabled";
+};

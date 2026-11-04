@@ -1,0 +1,84 @@
+# dt-rust.yaml - devicetree augments for the zephyr crate (RZDEMO copy)
+#
+# Author:  Sandesh Ghimire <sandesh@soccentric.com>
+# Origin:  zephyr-lang-rust dt-rust.yaml at dd73abc2 (Apache-2.0, Linaro)
+#
+# Identical to the module's file except for the STM32 flash controller
+# entry.  CMakeLists.txt points DT_AUGMENTS here.  Drop this copy when the
+# pinned module revision lists the STM32 controller itself.
+#
+# Description of how to augment the devicetree for Rust.
+#
+# Each entry describes an augmentation that will be added to matching nodes in the device tree.
+# The full syntax is described (indirectly) in `zephyr-build/src/devicetree/config.rs`.
+
+# Gpio controllers match for every node that has a `gpio-controller` property.  This is one of the
+# few instances were we can actually just match on a property.
+- name: gpio-controller
+  rules:
+    - !HasProp gpio-controller
+  actions:
+    - !Instance
+      raw: !Myself
+      device: crate::device::gpio::Gpio
+      static_type: crate::device::gpio::GpioStatic
+
+# The gpio-leds node will have #children nodes describing each led.  We'll match on the parent
+# having this compatible property.  The nodes themselves are built out of the properties associated
+# with each gpio.
+- name: gpio-leds
+  rules:
+    - !Compatible
+      names: [gpio-leds]
+      level: 1
+  actions:
+    - !Instance
+      raw: !Phandle gpios
+      device: crate::device::gpio::GpioPin
+
+# Flash controllers don't have any particular property to identify them, so we need a list of
+# compatible values that should match.
+- name: flash-controller
+  rules:
+    - !Compatible
+      names:
+        - "nordic,nrf52-flash-controller"
+        - "nordic,nrf51-flash-controller"
+        - "raspberrypi,pico-flash-controller"
+        - "zephyr,sim-flash"
+        # RZCON-002: added for this board; the module revision pinned by
+        # Zephyr v4.4.2 does not list it, so the partition rule below would
+        # refer to a flash controller without an instance.
+        - "st,stm32-flash-controller"
+      level: 0
+  actions:
+    - !Instance
+      raw: !Myself
+      device: crate::device::flash::FlashController
+
+# Flash partitions exist as children of a node compatible with "soc-nv-flash" that itself is a child
+# of the controller itself.
+# TODO: Get the write and erase property from the DT if present.
+- name: flash-partition
+  rules:
+    - !Compatible
+      names:
+        - "fixed-partitions"
+      level: 1
+    - !Compatible
+      names:
+        - "soc-nv-flash"
+      level: 2
+  actions:
+    - !Instance
+      raw: !Parent
+        level: 3
+        args:
+          - !Reg
+      device: "crate::device::flash::FlashPartition"
+
+# Generate a pseudo node that matches all of the labels across the tree with their nodes.
+- name: labels
+  rules: !Root
+  actions:
+    - !Labels

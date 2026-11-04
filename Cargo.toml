@@ -1,0 +1,37 @@
+# Cargo.toml - Rust demo application on Zephyr (RZDEMO), NUCLEO-F767ZI
+# Author: Sandesh Ghimire <sandesh@soccentric.com>
+# SRS:    SRS-RZEPHYR-F767
+
+[package]
+# RZCON-003: Zephyr's Rust module links librustapp.a, so the package must be
+# called "rustapp".  The firmware is named rust-zephyr-app everywhere else.
+name = "rustapp"
+version = "0.1.0"        # keep in step with VERSION (RZGEN-002)
+edition = "2021"
+rust-version = "1.99"
+resolver = "3"           # MSRV-aware: pick crate versions that build on the pinned toolchain
+authors = ["Sandesh Ghimire <sandesh@soccentric.com>"]
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+# Patched to $ZEPHYR_RUST_MODULE/zephyr by rust_cargo_application().
+zephyr = "0.1.0"
+critical-section = "1.1.2"
+
+[build-dependencies]
+zephyr-build = "0.1.0"
+
+# RZSAFE-004
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+debug = 2
+
+[profile.dev]
+panic = "abort"

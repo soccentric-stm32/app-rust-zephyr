@@ -1,0 +1,7 @@
+build/
+target/
+.cargo-home/
+
+# --- Secrets ---
+.env
+*.env

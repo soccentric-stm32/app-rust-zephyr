@@ -1,0 +1,21 @@
+#
+# Kconfig - RZDEMO application options
+#
+# Author:  Sandesh Ghimire <sandesh@soccentric.com>
+# Date:    2026-11-04
+# Target:  NUCLEO-F767ZI
+# SRS:     RZFN-004 (HLT-004)
+#
+
+mainmenu "Rust demo application on Zephyr (RZDEMO)"
+
+config RZDEMO_FAIL_HEALTH
+	bool "Force the pending-slot health check to fail"
+	default n
+	help
+	  Build the equivalent of the C demo's DEMO_FAIL_HEALTH option.  A
+	  pending slot never confirms, LD3 fast-blinks, and the watchdog is
+	  stopped after 10 s so BOOT can count a failed trial and roll back.
+	  build.rs exports it to Rust as cfg(CONFIG_RZDEMO_FAIL_HEALTH).
+
+source "Kconfig.zephyr"
