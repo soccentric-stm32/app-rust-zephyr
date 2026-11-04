@@ -8,7 +8,7 @@
  *
  * Driver glue only: the Rust modules in src/ own the application logic.
  * The UART and fatal-error code follow the C Zephyr demo
- * (soccentric-stm32-zephyr-application) so both builds behave the same.
+ * (app-c-zephyr) so both builds behave the same.
  */
 
 #include <soc.h>

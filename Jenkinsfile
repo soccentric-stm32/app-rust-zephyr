@@ -73,7 +73,7 @@ from pathlib import Path
 
 import re
 
-# The application must stay compatible with soccentric-stm32-bootloader:
+# The application must stay compatible with bootloader:
 # BOOT maps the active bank at 0x08000000, so every image links at the slot
 # offset. These values mirror LAY-001..LAY-005, HND-003 and Appendix B.
 def constants(path, pattern):

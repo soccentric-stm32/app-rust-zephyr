@@ -29,7 +29,7 @@
 ELF      := build/rust-zephyr-app.elf
 IMAGE    := build/rust-zephyr-app.img
 DEV      := scripts/docker-dev.sh
-BOOTCTL  ?= ../soccentric-stm32-bootloader/tools/bootctl.py
+BOOTCTL  ?= ../bootloader/tools/bootctl.py
 PORT     ?=
 PYTHON   ?= python3
 

@@ -7,7 +7,7 @@
 | **Author** | Sandesh Ghimire <sandesh@soccentric.com> |
 | **Date** | 2026-11-04 |
 | **Status** | Draft for review |
-| **Hardware** | NUCLEO-F767ZI, STM32F767ZIT6 rev Z (see [Hardware.md](https://github.com/soccentric-stm32/soccentric-stm32-validation-firmware/blob/HEAD/Hardware.md)) |
+| **Hardware** | NUCLEO-F767ZI, STM32F767ZIT6 rev Z (see [Hardware.md](https://github.com/soccentric-stm32/validation-firmware/blob/HEAD/Hardware.md)) |
 | **Software base** | Zephyr RTOS v4.4.2, Zephyr SDK 1.0.1, zephyr-lang-rust `dd73abc2`, Rust 1.99.1, board `nucleo_f767zi` |
 
 ---
@@ -68,11 +68,11 @@ says "as [ZDEMO] X", the requirement of the C Zephyr demo applies.
 
 | ID | Document |
 |---|---|
-| [DEMO] | [soccentric-stm32-application/SRS.md](https://github.com/soccentric-stm32/soccentric-stm32-application/blob/HEAD/SRS.md) — SRS-DEMO-F767 |
-| [ZDEMO] | [soccentric-stm32-zephyr-application/SRS.md](https://github.com/soccentric-stm32/soccentric-stm32-zephyr-application/blob/HEAD/SRS.md) — SRS-ZEPHYR-F767 |
-| [RDEMO] | [soccentric-stm32-rust-application/SRS.md](https://github.com/soccentric-stm32/soccentric-stm32-rust-application/blob/HEAD/SRS.md) — SRS-RUST-F767 |
-| [BOOT] | [soccentric-stm32-bootloader/SRS.md](https://github.com/soccentric-stm32/soccentric-stm32-bootloader/blob/HEAD/SRS.md) — SRS-BOOT-F767 |
-| [GUI] | [soccentric-stm32-validation-gui/SRS.md](https://github.com/soccentric-stm32/soccentric-stm32-validation-gui/blob/HEAD/SRS.md) — SRS-GUI-F767 |
+| [DEMO] | [app-c-freertos/SRS.md](https://github.com/soccentric-stm32/app-c-freertos/blob/HEAD/SRS.md) — SRS-DEMO-F767 |
+| [ZDEMO] | [app-c-zephyr/SRS.md](https://github.com/soccentric-stm32/app-c-zephyr/blob/HEAD/SRS.md) — SRS-ZEPHYR-F767 |
+| [RDEMO] | [app-rust-freertos/SRS.md](https://github.com/soccentric-stm32/app-rust-freertos/blob/HEAD/SRS.md) — SRS-RUST-F767 |
+| [BOOT] | [bootloader/SRS.md](https://github.com/soccentric-stm32/bootloader/blob/HEAD/SRS.md) — SRS-BOOT-F767 |
+| [GUI] | [validation-gui/SRS.md](https://github.com/soccentric-stm32/validation-gui/blob/HEAD/SRS.md) — SRS-GUI-F767 |
 | [LINK] | [GUI] Appendix A — HWLINK protocol (normative) |
 | [ZRUST] | Zephyr documentation, "Rust Language Support", and the zephyr-lang-rust repository |
 | [RM0410] | ST, STM32F76xxx/F77xxx reference manual |
