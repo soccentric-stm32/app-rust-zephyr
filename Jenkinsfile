@@ -1,6 +1,13 @@
 // Jenkinsfile - multi-stage CI for the Rust demo application on Zephyr.
 //
-//   Checkout -> Toolchain -> Build -> Lint -> Boot contract -> Image -> Publish
+//   Checkout -> Toolchain -> Build -> Lint -> Boot contract -> Image -> Package
+//   -> Release (tags) -> Archive
+//
+// Package builds dist/<repo>-<version>.tar.gz (outputs, manifest.json,
+// SHA256SUMS) on every run.  Release runs only for a tag v<version> and
+// publishes dist/ as a GitHub release with the Jenkins secret-text credential
+// github-release-token.  To release: bump the version, push, then push the
+// tag (git tag v0.2.0 && git push origin v0.2.0).
 //
 // Builds run through scripts/docker-dev.sh (RZCON-001). The image chain is
 // stm32-dev -> stm32-dev-zephyr -> stm32-dev-rust-zephyr; the Toolchain stage
@@ -81,8 +88,8 @@ def constants(path, pattern):
     return {m.group(1): int(m.group(2).replace("_", "").rstrip("ULul"), 16)
             for m in re.finditer(pattern, text)}
 
-rust = constants("src/board.rs", r"pub const (\w+): u32 = (0x[0-9A-Fa-f_]+);")
-c = constants("src/platform.c", r"#define (\w+)\s+(0x[0-9A-Fa-f]+U?L?)")
+rust = constants("src/board.rs", r"pub const (\\w+): u32 = (0x[0-9A-Fa-f_]+);")
+c = constants("src/platform.c", r"#define (\\w+)\\s+(0x[0-9A-Fa-f]+U?L?)")
 
 expected = [
     (rust, "src/board.rs", "SLOT_BASE", 0x0800C000),
@@ -161,15 +168,30 @@ PY
             }
         }
 
-        stage('Publish') {
+        stage('Package') {
             steps {
                 sh '''
-                    sha256sum build/rust-zephyr-app.elf build/rust-zephyr-app.bin build/rust-zephyr-app.hex > build/SHA256SUMS
-                    sha256sum build/rust-zephyr-app.img build/rust-zephyr-app.map >> build/SHA256SUMS
-                    cat build/SHA256SUMS
+                    python3 ci/package.py --name app-rust-zephyr --version "$(ci/version.sh)" \\
+                        build/rust-zephyr-app.elf build/rust-zephyr-app.bin build/rust-zephyr-app.hex build/rust-zephyr-app.map build/rust-zephyr-app.img \\
+                        README.md LICENSE
                 '''
-                archiveArtifacts artifacts: 'build/rust-zephyr-app.elf,build/rust-zephyr-app.bin,build/rust-zephyr-app.hex,build/rust-zephyr-app.img,build/rust-zephyr-app.map,build/SHA256SUMS',
-                                 fingerprint: true
+            }
+        }
+
+        stage('Release') {
+            // Only for a tag build (Multibranch job with tag discovery).  The
+            // tag must be v<version>; ci/github_release.py checks it.
+            when { buildingTag() }
+            steps {
+                withCredentials([string(credentialsId: 'github-release-token', variable: 'GITHUB_TOKEN')]) {
+                    sh 'python3 ci/github_release.py --tag "${TAG_NAME}" --version "$(ci/version.sh)" dist/*'
+                }
+            }
+        }
+
+        stage('Archive') {
+            steps {
+                archiveArtifacts artifacts: 'dist/*', fingerprint: true
             }
         }
     }
