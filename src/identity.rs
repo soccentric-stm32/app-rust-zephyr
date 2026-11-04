@@ -66,8 +66,9 @@ fn bytes(address: u32, len: usize) -> &'static [u8] {
 }
 
 fn invalidate(address: u32) {
-    // The identity sector is not shared with live cached data.
-    plat::dcache_invalidate(address, MAX_TLV as u32);
+    // The identity sector is not shared with live cached data.  Cover the
+    // header and the largest TLV block; the TLV starts after the header.
+    plat::dcache_invalidate(address, (HEADER_SIZE + MAX_TLV) as u32);
 }
 
 fn uid_words() -> [u8; 12] {

@@ -179,16 +179,21 @@ impl<'a> Table<'a> {
         Some(this)
     }
 
+    /// Bounds-checked slice at `at`, with `len` bytes.
+    fn bytes(&self, at: usize, len: usize) -> Option<&'a [u8]> {
+        self.buf.get(at..at.checked_add(len)?)
+    }
+
     fn vtable_pos(&self) -> Option<usize> {
-        let soffset = i32::from_le_bytes(self.buf.get(self.pos..self.pos + 4)?.try_into().ok()?);
+        let soffset = i32::from_le_bytes(self.bytes(self.pos, 4)?.try_into().ok()?);
         let vpos = (self.pos as i64).checked_sub(soffset as i64)?;
         if vpos < 0 {
             return None;
         }
         let vpos = vpos as usize;
-        let vtable_size =
-            u16::from_le_bytes(self.buf.get(vpos..vpos + 2)?.try_into().ok()?) as usize;
-        if vtable_size < 4 || vpos + vtable_size > self.buf.len() {
+        let vtable_size = u16::from_le_bytes(self.bytes(vpos, 2)?.try_into().ok()?) as usize;
+        let vtable_end = vpos.checked_add(vtable_size)?;
+        if vtable_size < 4 || vtable_end > self.buf.len() {
             return None;
         }
         Some(vpos)
@@ -196,13 +201,14 @@ impl<'a> Table<'a> {
 
     fn field(&self, id: u8) -> Option<usize> {
         let vpos = self.vtable_pos()?;
-        let vtable_size =
-            u16::from_le_bytes(self.buf.get(vpos..vpos + 2)?.try_into().ok()?) as usize;
-        let entry = vpos + 4 + id as usize * 2;
-        if entry + 2 > vpos + vtable_size {
+        let vtable_size = u16::from_le_bytes(self.bytes(vpos, 2)?.try_into().ok()?) as usize;
+        let entry = vpos.checked_add(4)?.checked_add(id as usize * 2)?;
+        let entry_end = entry.checked_add(2)?;
+        let vtable_end = vpos.checked_add(vtable_size)?;
+        if entry_end > vtable_end {
             return None;
         }
-        let offset = u16::from_le_bytes(self.buf.get(entry..entry + 2)?.try_into().ok()?) as usize;
+        let offset = u16::from_le_bytes(self.bytes(entry, 2)?.try_into().ok()?) as usize;
         if offset == 0 {
             return None;
         }
@@ -219,31 +225,31 @@ impl<'a> Table<'a> {
 
     pub fn u16(&self, id: u8) -> Option<u16> {
         let p = self.field(id)?;
-        Some(u16::from_le_bytes(self.buf.get(p..p + 2)?.try_into().ok()?))
+        Some(u16::from_le_bytes(self.bytes(p, 2)?.try_into().ok()?))
     }
 
     pub fn u32(&self, id: u8) -> Option<u32> {
         let p = self.field(id)?;
-        Some(u32::from_le_bytes(self.buf.get(p..p + 4)?.try_into().ok()?))
+        Some(u32::from_le_bytes(self.bytes(p, 4)?.try_into().ok()?))
     }
 
     pub fn u64(&self, id: u8) -> Option<u64> {
         let p = self.field(id)?;
-        Some(u64::from_le_bytes(self.buf.get(p..p + 8)?.try_into().ok()?))
+        Some(u64::from_le_bytes(self.bytes(p, 8)?.try_into().ok()?))
     }
 
     pub fn table(&self, id: u8) -> Option<Self> {
         let p = self.field(id)?;
-        let rel = u32::from_le_bytes(self.buf.get(p..p + 4)?.try_into().ok()?) as usize;
+        let rel = u32::from_le_bytes(self.bytes(p, 4)?.try_into().ok()?) as usize;
         Self::at(self.buf, p.checked_add(rel)?)
     }
 
     pub fn str(&self, id: u8) -> Option<&'a str> {
         let p = self.field(id)?;
-        let rel = u32::from_le_bytes(self.buf.get(p..p + 4)?.try_into().ok()?) as usize;
+        let rel = u32::from_le_bytes(self.bytes(p, 4)?.try_into().ok()?) as usize;
         let start = p.checked_add(rel)?;
-        let len = u32::from_le_bytes(self.buf.get(start..start + 4)?.try_into().ok()?) as usize;
-        let data = self.buf.get(start + 4..start + 4 + len)?;
+        let len = u32::from_le_bytes(self.bytes(start, 4)?.try_into().ok()?) as usize;
+        let data = self.bytes(start.checked_add(4)?, len)?;
         core::str::from_utf8(data).ok()
     }
 }

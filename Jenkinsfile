@@ -88,8 +88,8 @@ def constants(path, pattern):
     return {m.group(1): int(m.group(2).replace("_", "").rstrip("ULul"), 16)
             for m in re.finditer(pattern, text)}
 
-rust = constants("src/board.rs", r"pub const (\\w+): u32 = (0x[0-9A-Fa-f_]+);")
-c = constants("src/platform.c", r"#define (\\w+)\\s+(0x[0-9A-Fa-f]+U?L?)")
+rust = constants("src/board.rs", r"pub const (\w+): u32 = (0x[0-9A-Fa-f_]+);")
+c = constants("src/platform.c", r"#define (\w+)\s+(0x[0-9A-Fa-f]+U?L?)")
 
 expected = [
     (rust, "src/board.rs", "SLOT_BASE", 0x0800C000),
@@ -171,8 +171,8 @@ PY
         stage('Package') {
             steps {
                 sh '''
-                    python3 ci/package.py --name app-rust-zephyr --version "$(ci/version.sh)" \\
-                        build/rust-zephyr-app.elf build/rust-zephyr-app.bin build/rust-zephyr-app.hex build/rust-zephyr-app.map build/rust-zephyr-app.img \\
+                    python3 ci/package.py --name app-rust-zephyr --version "$(ci/version.sh)" \
+                        build/rust-zephyr-app.elf build/rust-zephyr-app.bin build/rust-zephyr-app.hex build/rust-zephyr-app.map build/rust-zephyr-app.img \
                         README.md LICENSE
                 '''
             }

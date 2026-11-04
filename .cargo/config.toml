@@ -1,0 +1,15 @@
+# Cargo configuration for the Rust-on-Zephyr build.
+#
+# The Zephyr Rust module patches its `zephyr` and `zephyr-sys` crates into the
+# build as path dependencies, so Cargo does not apply the `--cap-lints=allow`
+# it normally uses for registry dependencies.  The pinned module revision then
+# reports two diagnostics from its own code:
+#
+#   dead_code               zephyr/src/logging.rs, helper only used by the
+#                           printk/zlog cfg branches this no-printk build omits
+#   unnecessary_transmutes  zephyr-sys bindgen 0.70 bitfield accessors
+#
+# Keep the application crate strict: scripts/lint.sh re-denies both lints on
+# the command line while checking this crate with clippy -D warnings.
+[target.thumbv7em-none-eabi]
+rustflags = ["-A", "dead_code", "-A", "unnecessary_transmutes"]

@@ -24,5 +24,8 @@ CARGO_CMD="$(grep -o 'cmake -E env BUILD_DIR.*--target-dir /work/build/rust/targ
 CLIPPY_CMD="${CARGO_CMD/ cargo build / cargo clippy }"
 
 "$DEV" run env CARGO_HOME=/work/.cargo-home cargo fmt --check
-"$DEV" run env CARGO_HOME=/work/.cargo-home bash -c "cd /work && $CLIPPY_CMD -- -D warnings"
+# The crate's own checks stay strict.  The build config allows two lints
+# only because the pinned zephyr/zephyr-sys path dependencies trigger them;
+# re-deny them here so the application cannot hide the same diagnostics.
+"$DEV" run env CARGO_HOME=/work/.cargo-home bash -c "cd /work && $CLIPPY_CMD -- -D warnings -D dead_code -D unnecessary_transmutes"
 echo "lint: rustfmt and clippy clean"
