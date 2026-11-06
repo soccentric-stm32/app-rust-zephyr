@@ -72,7 +72,7 @@ project(rust_zephyr_app LANGUAGES C)
 set(DT_AUGMENTS "${CMAKE_CURRENT_SOURCE_DIR}/dt-rust.yaml" CACHE INTERNAL "")
 rust_cargo_application()
 
-target_sources(app PRIVATE src/platform.c)
+target_sources(app PRIVATE src/platform.c src/debug_log.c)
 target_include_directories(app PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 # --- Build products (RZGEN-001, RZGEN-002) ----------------------------------

@@ -133,6 +133,7 @@ pub fn read_handover() -> Handover {
 
 /// RZBT-005: leave a request for BOOT and reset.
 pub fn enter_bootloader() -> ! {
+    log_info!("HWLINK: EnterBootloader, resetting into BOOT");
     backup_unlock();
     // SAFETY: fixed RTC backup register; the domain is unlocked above.
     unsafe { board::RTC_BKP1R.write_volatile(board::STAY_IN_BOOT_MAGIC) };
@@ -141,6 +142,7 @@ pub fn enter_bootloader() -> ! {
 }
 
 pub fn reset() -> ! {
+    log_info!("HWLINK: Reset");
     plat::reboot()
 }
 

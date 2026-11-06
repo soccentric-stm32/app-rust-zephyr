@@ -44,6 +44,7 @@ pub fn thread() {
                 press_start = now;
                 long_sent = false;
             } else if !long_sent && now - press_start < SHORT_MAX_MS {
+                log_info!("button: short press, next LED pattern");
                 let _ = ipc::LED_COMMANDS.try_send(LedCommand::ButtonShort);
             }
         }
@@ -52,6 +53,7 @@ pub fn thread() {
         // released, exactly as the C demo's button thread does.
         if pressed && !long_sent && now - press_start >= LONG_MIN_MS {
             long_sent = true;
+            log_info!("button: long press, default LED patterns");
             let _ = ipc::LED_COMMANDS.try_send(LedCommand::ButtonLong);
         }
 

@@ -105,7 +105,7 @@ GUI tells the demos apart by the `HelloReply` name and version.
 | RZCON-002 | The Zephyr, SDK, Rust and Rust-module versions shall be pinned in the image (build arguments). The Rust module revision shall be the one the Zephyr release pins in `submanifests/optional.yaml`. Zephyr and the module shall be used unmodified; board-specific additions (overlay, Kconfig, devicetree augments) shall live in this repository. |
 | RZCON-003 | RZDEMO shall be a freestanding Zephyr application built with CMake + Ninja; the application logic shall be one `no_std` Rust crate (package `rustapp`) built by `rust_cargo_application()`, without an allocator (`CONFIG_RUST_ALLOC` off). |
 | RZCON-004 | C code shall be limited to the platform layer: driver APIs not yet bound by the Rust module and Zephyr hooks that must be C (`SYS_INIT`, `k_sys_fatal_error_handler`). It shall contain no application logic, take fixed arguments, and be declared for Rust in one module (`src/plat.rs`). |
-| RZCON-005 | RZDEMO shall use USART3 (PD8/PD9) for HWLINK and shall disable the Zephyr console, `printk` and logging backends. |
+| RZCON-005 | RZDEMO shall use USART3 (PD8/PD9) for HWLINK only. The Zephyr console, `printk` and logging shall use USART6 instead (RZDBG-001), never USART3. |
 | RZCON-006 | RZDEMO shall run only under BOOT, linked at `0x0800 C000` ([BOOT] LAY-002), and shall never reconfigure PA13/PA14 (SWD) or PH0/PH1 (HSE). |
 
 ### 2.3 Assumptions
@@ -186,7 +186,7 @@ GUI tells the demos apart by the `HelloReply` name and version.
 |---|---|---|
 | RZSAFE-001 | RZDEMO shall never unlock or write option bytes. | I |
 | RZSAFE-002 | The confirm path shall accept only the `CONFIRMED` record address, fixed in the platform layer (as [DEMO] DSAFE-002); a record that is neither erased nor valid shall never be overwritten. | I, T |
-| RZSAFE-003 | RZDEMO shall drive only PB0, PB7, PB14, read PC13 and use PD8/PD9; unused peripherals of the board shall be disabled in the overlay. | I |
+| RZSAFE-003 | RZDEMO shall drive only PB0, PB7, PB14, read PC13 and use PD8/PD9 and PG14/PG9 (USART6 debug, RZDBG-001); unused peripherals of the board shall be disabled in the overlay. | I |
 | RZSAFE-004 | `CONFIG_ASSERT` and stack protection shall be on; the Rust release profile shall use `panic = "abort"`. | I |
 
 ---
@@ -200,6 +200,18 @@ GUI tells the demos apart by the `HelloReply` name and version.
 | RZNFR-003 | **Reliability:** as [DEMO] DNFR-003 (24 h with the GUI polling every 100 ms). | T |
 | RZNFR-004 | **Comparison:** contributes the Rust-on-Zephyr column to the comparison report ([RDEMO] RNFR-004). | A |
 | RZNFR-005 | **Template:** the README shall explain how to start a new Rust-on-Zephyr application from RZDEMO. | I |
+
+### Debug output (USART6)
+
+USART3 carries HWLINK only.  Zephyr's console and log output go to USART6
+(`zephyr,console = &usart6`; TX PG14 = Arduino D1, RX PG9 = D0), 115200
+8N1, in the format BOOT uses: `[<ms>] <TAG> <E|W|I|D> <text>` (milliseconds since reset, right-aligned to 7 digits, CR LF), tag `R-ZEP`.  The Rust code logs through `log_info!`/`log_warn!`/`log_error!` (src/log.rs), which format into a stack buffer and call `plat_log()` in the C layer.
+
+| ID | Requirement | Method |
+|---|---|---|
+| RZDBG-001 | RZDEMO shall log start (version, commit, slot, trial state, reset cause), a recorded fault, the health verdict, button presses and HWLINK-requested resets. | D |
+| RZDBG-002 | Logging shall be deferred (`CONFIG_LOG_MODE_DEFERRED`), so no application thread waits on the debug UART; before a deliberate reboot the log shall be flushed (`LOG_PANIC`). | I |
+| RZDBG-003 | A custom formatter (`CONFIG_LOG_CUSTOM_FORMAT_SUPPORT`) shall print the family line format; `printk()` output shall pass through unchanged. | I |
 
 ---
 

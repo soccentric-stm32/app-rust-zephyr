@@ -103,13 +103,16 @@ pub fn thread(handover: Handover) {
                 if boot::write_confirmed() {
                     boot::mark_confirmed();
                     set_health(board::HEALTH_PASSED, false, checks);
+                    log_info!("health: passed, CONFIRMED written");
                 } else {
+                    log_error!("health: CONFIRMED record write failed");
                     failed = true;
                     set_health(board::HEALTH_FAILED, true, checks);
                     let _ = ipc::LED_COMMANDS.try_send(LedCommand::HealthFailed);
                 }
             } else if elapsed >= HEALTH_LIMIT_MS {
                 // HLT-002: the check must have passed by 10 s.
+                log_error!("health: conditions not met, trial fails");
                 check_done = true;
                 failed = true;
                 set_health(board::HEALTH_FAILED, true, checks);

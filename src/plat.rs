@@ -62,6 +62,7 @@ mod ffi {
 
         pub fn plat_vtor() -> u32;
         pub fn plat_reboot() -> !;
+        pub fn plat_log(level: u8, text: *const u8, len: u32);
         pub fn plat_dcache_invalidate(addr: usize, len: u32);
         pub fn plat_thread_name(name: *const c_char);
         pub fn plat_stack_unused() -> u32;
@@ -125,6 +126,11 @@ pub fn vtor() -> u32 {
 
 pub fn reboot() -> ! {
     unsafe { ffi::plat_reboot() }
+}
+
+/// RZDBG-001: one debug line on USART6 (see src/log.rs for the macros).
+pub fn log(level: u8, text: &[u8]) {
+    unsafe { ffi::plat_log(level, text.as_ptr(), text.len() as u32) }
 }
 
 pub fn dcache_invalidate(addr: u32, len: u32) {

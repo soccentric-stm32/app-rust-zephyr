@@ -47,16 +47,28 @@
 	};
 };
 
-/* ZSAFE-003: only the LEDs, B1 and USART3 are used. */
+/* RZDBG-001: console and log output on USART6 (PG14 = Arduino D1 TX,
+ * PG9 = D0 RX), 115200 8N1.  HWLINK keeps USART3 to itself. */
+/ {
+	chosen {
+		zephyr,console = &usart6;
+	};
+};
+
+&usart6 {
+	pinctrl-0 = <&usart6_tx_pg14 &usart6_rx_pg9>;
+	pinctrl-names = "default";
+	current-speed = <115200>;
+	status = "okay";
+};
+
+/* ZSAFE-003: only the LEDs, B1, USART3 (HWLINK) and USART6 (debug) are
+ * used. */
 &usart1 {
 	status = "disabled";
 };
 
 &usart2 {
-	status = "disabled";
-};
-
-&usart6 {
 	status = "disabled";
 };
 

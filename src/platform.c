@@ -27,6 +27,8 @@
 #include <zephyr/storage/flash_map.h>
 #include <zephyr/sys/reboot.h>
 #include <zephyr/sys/ring_buffer.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/logging/log_ctrl.h>
 
 #include "platform.h"
 
@@ -274,6 +276,8 @@ uint32_t plat_vtor(void)
 
 void plat_reboot(void)
 {
+	/* RZDBG-002: flush queued debug lines; the reset would drop them. */
+	LOG_PANIC();
 	sys_reboot(SYS_REBOOT_COLD);
 	CODE_UNREACHABLE;
 }

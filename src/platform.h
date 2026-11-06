@@ -37,6 +37,11 @@ struct plat_fault {
 	char file[PLAT_FAULT_FILE_LEN];
 };
 
+/* RZDBG-001: one debug line on USART6; level 'E', 'W', 'I' or 'D'.  The
+ * text is copied (at most PLAT_LOG_TEXT_MAX bytes), not NUL-terminated. */
+#define PLAT_LOG_TEXT_MAX 120U
+void plat_log(uint8_t level, const uint8_t *text, uint32_t len);
+
 /* Fault record (RZGEN-004). */
 void plat_fault_boot_start(void);
 bool plat_fault_get(struct plat_fault *out);

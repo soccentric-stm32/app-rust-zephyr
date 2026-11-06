@@ -13,6 +13,9 @@
 #![no_std]
 #![deny(warnings)]
 
+#[macro_use]
+mod log;
+
 mod board;
 mod boot;
 mod build_info;
@@ -52,6 +55,24 @@ extern "C" fn rust_main() {
     // RZBT-004: decode the hand-over record before Health starts.
     let handover = boot::read_handover();
 
+    // RZDBG-001: start-up line on the debug UART.
+    log_info!(
+        "start v{} {}, slot {} {}, reset {}",
+        build_info::VERSION,
+        build_info::GIT_COMMIT,
+        match handover.slot {
+            board::SLOT_A => 'A',
+            board::SLOT_B => 'B',
+            _ => '?',
+        },
+        match handover.trial_state {
+            board::TRIAL_PENDING => "on trial",
+            board::TRIAL_CONFIRMED => "confirmed",
+            _ => "no hand-over",
+        },
+        boot::reset_cause_text(reset_cause)
+    );
+
     // RZBT-001/002: the vector table must be the image's own table.
     if plat::vtor() != board::SLOT_BASE {
         fault::fatal();
@@ -63,6 +84,9 @@ extern "C" fn rust_main() {
 
     // LED-005: latch LD3 for the last fault or watchdog reset.
     let initial_fault = fault::last().is_some() || boot::reset_was_watchdog(reset_cause);
+    if fault::last().is_some() {
+        log_warn!("last fault recorded before this reset");
+    }
     ipc::update_status(|s| s.fault_active = initial_fault);
 
     // COM-001/002: LEDs, B1 and USART3 must work before the health check.
