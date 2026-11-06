@@ -101,6 +101,7 @@ pub fn thread(handover: Handover) {
             if conditions_met(&handover, &counts) {
                 check_done = true;
                 if boot::write_confirmed() {
+                    boot::mark_confirmed();
                     set_health(board::HEALTH_PASSED, false, checks);
                 } else {
                     failed = true;

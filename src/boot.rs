@@ -3,6 +3,8 @@
 // Author: Sandesh Ghimire <sandesh@soccentric.com>
 // SRS:    RZBT-004..006, RZGEN-005, RZFN-004, RZSAFE-002
 
+use core::sync::atomic::{AtomicBool, Ordering};
+
 use crate::board;
 use crate::hwlink::frame::crc32;
 use crate::plat;
@@ -26,6 +28,25 @@ impl Handover {
     pub fn pending(&self) -> bool {
         self.trial_state == board::TRIAL_PENDING
     }
+
+    /// Trial state to report now.  The hand-over is decoded once at start-up,
+    /// so a slot that was on trial reports CONFIRMED once the health thread
+    /// has written the CONFIRMED record.
+    pub fn current_trial_state(&self) -> u8 {
+        if self.pending() && CONFIRMED.load(Ordering::Acquire) {
+            board::TRIAL_CONFIRMED
+        } else {
+            self.trial_state
+        }
+    }
+}
+
+/// Set once the CONFIRMED record for the running slot is in flash.
+static CONFIRMED: AtomicBool = AtomicBool::new(false);
+
+/// Record that the running slot is no longer on trial.
+pub fn mark_confirmed() {
+    CONFIRMED.store(true, Ordering::Release);
 }
 
 /// RZGEN-005: save the reset flags for `Status`, then clear them.

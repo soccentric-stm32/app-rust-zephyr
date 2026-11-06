@@ -582,6 +582,16 @@ bool plat_uart_send(const uint8_t *data, uint32_t len, uint32_t timeout_ms)
 	memcpy(uart_tx_buf, data, len);
 	uart_tx_len = len;
 	uart_tx_pos = 0U;
+
+	/* The STM32 driver raises TX interrupts on TC only, and TC is clear
+	 * after BOOT and after every frame (TCCF below), so enabling the IRQ
+	 * alone never starts a frame.  Load the first byte here, before the
+	 * IRQ is enabled; its completion sets TC and the ISR sends the rest. */
+	int primed = uart_fifo_fill(uart, uart_tx_buf, (int)len);
+
+	if (primed > 0) {
+		uart_tx_pos = (uint32_t)primed;
+	}
 	uart_irq_tx_enable(uart);
 
 	if (k_sem_take(&uart_tx_sem, K_MSEC(timeout_ms)) != 0) {
