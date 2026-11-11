@@ -6,9 +6,9 @@
 // The pattern logic is the Rust Embassy demo's; the thread drives LD1..LD3
 // through the Zephyr GPIO driver and wakes every millisecond.
 
-use crate::hwlink::{led, pattern};
-use crate::ipc::{self, ButtonEvent, LedCommand};
-use crate::plat;
+use crate::app::ipc::{self, ButtonEvent, LedCommand};
+use crate::platform::plat;
+use crate::protocol::hwlink::{led, pattern};
 
 const DEFAULT_PERIOD_MS: u16 = 1000;
 const TICK_MS: u32 = 1;
@@ -122,7 +122,7 @@ pub fn thread(initial_fault: bool) {
                     period_ms,
                     force,
                 } => match led {
-                    crate::hwlink::led::LD1 => {
+                    crate::protocol::hwlink::led::LD1 => {
                         let now = plat::now_ms();
                         if p == pattern::CHASE {
                             pattern1 = p;
@@ -142,7 +142,7 @@ pub fn thread(initial_fault: bool) {
                             phase1 = now;
                         }
                     }
-                    crate::hwlink::led::LD2 => {
+                    crate::protocol::hwlink::led::LD2 => {
                         let now = plat::now_ms();
                         if p == pattern::CHASE {
                             pattern1 = p;
@@ -162,7 +162,7 @@ pub fn thread(initial_fault: bool) {
                             phase2 = now;
                         }
                     }
-                    crate::hwlink::led::LD3 if force => {
+                    crate::protocol::hwlink::led::LD3 if force => {
                         led3_forced = Some((p, period_ms));
                         led3_pattern = p;
                         led3_period = period_ms;

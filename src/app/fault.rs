@@ -8,7 +8,7 @@
 // panics; the zephyr crate's panic handler ends in k_panic().  Rust only
 // reads and clears it.
 
-use crate::plat::{self, Fault};
+use crate::platform::plat::{self, Fault};
 
 /// Reason names, in the order of the C demo's app_fault_reason_t.
 const REASONS: [&str; 9] = [

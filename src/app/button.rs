@@ -9,8 +9,8 @@
 // The GPIO interrupt wakes the thread on an edge; the 10 ms timeout keeps the
 // debounce and the health check-in running while the button is held.
 
-use crate::ipc::{self, LedCommand};
-use crate::plat;
+use crate::app::ipc::{self, LedCommand};
+use crate::platform::plat;
 
 const DEBOUNCE_MS: u64 = 30;
 const SHORT_MAX_MS: u64 = 1000;

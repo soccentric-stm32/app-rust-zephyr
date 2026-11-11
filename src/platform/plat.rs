@@ -1,9 +1,9 @@
-// plat.rs - Rust side of the C platform layer (src/platform.c)
+// plat.rs - Rust side of the C platform layer (platform/platform.c)
 //
 // Author: Sandesh Ghimire <sandesh@soccentric.com>
 // SRS:    RZCON-004
 //
-// Declarations must match src/platform.h.  Every wrapper here is safe: the C
+// Declarations must match platform/platform.h.  Every wrapper here is safe: the C
 // functions take fixed arguments and check their own bounds.
 
 use core::ffi::{c_char, CStr};

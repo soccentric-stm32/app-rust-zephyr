@@ -88,17 +88,17 @@ def constants(path, pattern):
     return {m.group(1): int(m.group(2).replace("_", "").rstrip("ULul"), 16)
             for m in re.finditer(pattern, text)}
 
-rust = constants("src/board.rs", r"pub const (\w+): u32 = (0x[0-9A-Fa-f_]+);")
-c = constants("src/platform.c", r"#define (\w+)\s+(0x[0-9A-Fa-f]+U?L?)")
+rust = constants("src/platform/board.rs", r"pub const (\w+): u32 = (0x[0-9A-Fa-f_]+);")
+c = constants("platform/platform.c", r"#define (\w+)\s+(0x[0-9A-Fa-f]+U?L?)")
 
 expected = [
-    (rust, "src/board.rs", "SLOT_BASE", 0x0800C000),
-    (rust, "src/board.rs", "CONFIRMED_MAGIC", 0x434F4E46),
-    (rust, "src/board.rs", "STAY_IN_BOOT_MAGIC", 0x59415453),
-    (rust, "src/board.rs", "HANDOVER_MAGIC", 0x00444E48),
-    (c, "src/platform.c", "META_RUNNING_ADDR", 0x08008000),
-    (c, "src/platform.c", "META_SIZE", 0x00004000),
-    (c, "src/platform.c", "META_CONFIRMED_OFFSET", 0x140),
+    (rust, "src/platform/board.rs", "SLOT_BASE", 0x0800C000),
+    (rust, "src/platform/board.rs", "CONFIRMED_MAGIC", 0x434F4E46),
+    (rust, "src/platform/board.rs", "STAY_IN_BOOT_MAGIC", 0x59415453),
+    (rust, "src/platform/board.rs", "HANDOVER_MAGIC", 0x00444E48),
+    (c, "platform/platform.c", "META_RUNNING_ADDR", 0x08008000),
+    (c, "platform/platform.c", "META_SIZE", 0x00004000),
+    (c, "platform/platform.c", "META_CONFIRMED_OFFSET", 0x140),
 ]
 for table, path, name, want in expected:
     if name not in table:

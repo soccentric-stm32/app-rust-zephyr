@@ -9,11 +9,11 @@
 // every thread has checked in, no fault was saved in this boot or in the
 // previous trial, and the USART3 receiver is running.
 
-use crate::board;
-use crate::boot::{self, Handover};
-use crate::fault;
-use crate::ipc::{self, LedCommand};
-use crate::plat;
+use crate::app::fault;
+use crate::app::ipc::{self, LedCommand};
+use crate::platform::board;
+use crate::platform::boot::{self, Handover};
+use crate::platform::plat;
 
 const LOOP_MS: u32 = 100;
 const CHECKIN_TIMEOUT_MS: u64 = 2000;

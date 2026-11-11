@@ -11,9 +11,9 @@
 
 use core::fmt::Write;
 
-use crate::board;
-use crate::hwlink::frame::crc32;
-use crate::plat;
+use crate::platform::board;
+use crate::platform::plat;
+use crate::protocol::hwlink::frame::crc32;
 
 const MAGIC: u32 = 0x3156_5250; // "PRV1" little-endian
 const FORMAT: u16 = 1;

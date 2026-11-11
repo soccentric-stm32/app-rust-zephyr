@@ -4,7 +4,7 @@
 // SRS:    RZDBG-001..RZDBG-003
 //
 // USART3 carries HWLINK only; debug text goes to USART6 through Zephyr's
-// deferred logging (src/debug_log.c), in the line format BOOT and the other
+// deferred logging (platform/debug_log.c), in the line format BOOT and the other
 // firmwares use:
 //
 //     [   5012] R-ZEP I health: passed, CONFIRMED written
@@ -14,9 +14,9 @@
 
 use core::fmt::{self, Write};
 
-use crate::plat;
+use crate::platform::plat;
 
-/// Same limit as PLAT_LOG_TEXT_MAX in src/platform.h.
+/// Same limit as PLAT_LOG_TEXT_MAX in platform/platform.h.
 const TEXT_MAX: usize = 120;
 
 struct Line {

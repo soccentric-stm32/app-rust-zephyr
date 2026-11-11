@@ -7,16 +7,17 @@
 #
 # Freestanding Zephyr application built against $ZEPHYR_BASE in the
 # stm32-dev-rust-zephyr container, without a west workspace.  The
-# application is the Rust crate in this directory (Cargo.toml, src/*.rs),
-# built by Zephyr's Rust module; src/platform.c is the small C layer for the
-# driver APIs the Rust bindings do not cover yet.
+# application is the Rust crate in this directory (Cargo.toml, src/lib.rs,
+# src/app, src/platform, src/protocol), built by Zephyr's Rust module;
+# platform/*.c is the small C layer for the driver APIs the Rust bindings do
+# not cover yet.  The devicetree files live in boards/.
 #   scripts/build.sh [clean]
 #
 
 cmake_minimum_required(VERSION 3.20.0)
 
 set(BOARD nucleo_f767zi)
-set(DTC_OVERLAY_FILE "${CMAKE_CURRENT_SOURCE_DIR}/app.overlay")
+set(DTC_OVERLAY_FILE "${CMAKE_CURRENT_SOURCE_DIR}/boards/nucleo_f767zi.overlay")
 
 # RZCON-002: Zephyr's Rust module is not part of the image's west filter, so
 # add it explicitly (docker/Dockerfile installs it).
@@ -69,11 +70,11 @@ project(rust_zephyr_app LANGUAGES C)
 # provides rust_main(), called from the module's main.c.  dt-rust.yaml is a
 # local copy of the module's devicetree augments with the STM32 flash
 # controller added.
-set(DT_AUGMENTS "${CMAKE_CURRENT_SOURCE_DIR}/dt-rust.yaml" CACHE INTERNAL "")
+set(DT_AUGMENTS "${CMAKE_CURRENT_SOURCE_DIR}/boards/dt-rust.yaml" CACHE INTERNAL "")
 rust_cargo_application()
 
-target_sources(app PRIVATE src/platform.c src/debug_log.c)
-target_include_directories(app PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_sources(app PRIVATE platform/platform.c platform/debug_log.c)
+target_include_directories(app PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/platform")
 
 # --- Build products (RZGEN-001, RZGEN-002) ----------------------------------
 find_package(Python3 COMPONENTS Interpreter REQUIRED)

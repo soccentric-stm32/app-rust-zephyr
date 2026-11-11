@@ -6,9 +6,9 @@ BOOT, HWVAL, the GUI and the other demo applications.
 
 This application does not generate code from it.  The Rust crate encodes and
 decodes the demo message set with the fixed-buffer FlatBuffers codec in
-`../src/hwlink/` (`fb.rs`, `mod.rs`), the same code as the Rust Embassy demo:
-the upstream Rust FlatBuffers runtime needs an allocator, and this
-application has none.  The field numbers in `mod.rs` follow this schema;
+`../src/protocol/hwlink/` (`fb.rs`, `mod.rs`), the same code as the Rust
+Embassy demo: the upstream Rust FlatBuffers runtime needs an allocator, and
+this application has none.  The field numbers in `mod.rs` follow this schema;
 check them whenever the schema changes.
 
 `Message.body` is an append-only union: add new members at the end and raise

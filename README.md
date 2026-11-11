@@ -24,6 +24,24 @@ The NUCLEO-F767ZI demo application written in Rust on Zephyr RTOS, using Zephyr'
 - Produces a ready-to-flash bootloader image (`rust-zephyr-app.img`)
 - Reproducible Docker build environment
 
+## Project layout
+
+```
+src/                Rust application crate (`no_std`, no allocator)
+  app/              Zephyr threads (health, comms, button, LED), IPC and services
+  platform/         Rust FFI surface, board/boot constants, build metadata
+  protocol/         HWLINK COBS/CRC-32 framing and fixed-buffer FlatBuffers codec
+platform/           C platform layer for the driver APIs the Rust bindings miss
+  platform.c        USART3, watchdog, reboot, flash partition, fatal handler
+  platform.h        Declarations shared with `src/platform/plat.rs`
+  debug_log.c       USART6 debug log backend
+boards/             nucleo_f767zi.overlay and the devicetree augments
+protocol/           Shared HWLINK FlatBuffers schema
+scripts/            build, lint, Docker, image and footprint helpers
+docker/             stm32-dev-rust-zephyr image on top of the shared stm32-dev base
+ci/                 Jenkins release packaging and version helpers
+```
+
 ## Build and run
 
 ```bash

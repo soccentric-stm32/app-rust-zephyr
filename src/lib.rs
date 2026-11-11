@@ -16,18 +16,9 @@
 #[macro_use]
 mod log;
 
-mod board;
-mod boot;
-mod build_info;
-mod button;
-mod comms;
-mod fault;
-mod health;
-mod hwlink;
-mod identity;
-mod ipc;
-mod led;
-mod plat;
+mod app;
+mod platform;
+mod protocol;
 
 // RZRT-001: Health highest, Comms high, Button and LED normal (the C Zephyr
 // demo's priorities and stack sizes, with more stack for Rust's formatting).
@@ -44,74 +35,75 @@ pub(crate) const LED_STACK: usize = 1536;
 #[no_mangle]
 extern "C" fn rust_main() {
     // The fault record is in no-init RAM; bump its boot id first.
-    plat::fault_boot_start();
+    platform::plat::fault_boot_start();
 
     // RZBT-002: feed the watchdog BOOT started before any long set-up.
-    plat::wdt_feed();
+    platform::plat::wdt_feed();
 
     // RZGEN-005: keep the reset cause for Status, then clear it.
-    let reset_cause = boot::take_reset_cause();
+    let reset_cause = platform::boot::take_reset_cause();
 
     // RZBT-004: decode the hand-over record before Health starts.
-    let handover = boot::read_handover();
+    let handover = platform::boot::read_handover();
 
     // RZDBG-001: start-up line on the debug UART.
     log_info!(
         "start v{} {}, slot {} {}, reset {}",
-        build_info::VERSION,
-        build_info::GIT_COMMIT,
+        platform::build_info::VERSION,
+        platform::build_info::GIT_COMMIT,
         match handover.slot {
-            board::SLOT_A => 'A',
-            board::SLOT_B => 'B',
+            platform::board::SLOT_A => 'A',
+            platform::board::SLOT_B => 'B',
             _ => '?',
         },
         match handover.trial_state {
-            board::TRIAL_PENDING => "on trial",
-            board::TRIAL_CONFIRMED => "confirmed",
+            platform::board::TRIAL_PENDING => "on trial",
+            platform::board::TRIAL_CONFIRMED => "confirmed",
             _ => "no hand-over",
         },
-        boot::reset_cause_text(reset_cause)
+        platform::boot::reset_cause_text(reset_cause)
     );
 
     // RZBT-001/002: the vector table must be the image's own table.
-    if plat::vtor() != board::SLOT_BASE {
-        fault::fatal();
+    if platform::plat::vtor() != platform::board::SLOT_BASE {
+        app::fault::fatal();
     }
 
     // The IWDG keeps running from BOOT even if the driver cannot take it
     // over; Health then keeps feeding it through the register path.
-    let _ = plat::wdt_init();
+    let _ = platform::plat::wdt_init();
 
     // LED-005: latch LD3 for the last fault or watchdog reset.
-    let initial_fault = fault::last().is_some() || boot::reset_was_watchdog(reset_cause);
-    if fault::last().is_some() {
+    let initial_fault =
+        app::fault::last().is_some() || platform::boot::reset_was_watchdog(reset_cause);
+    if app::fault::last().is_some() {
         log_warn!("last fault recorded before this reset");
     }
-    ipc::update_status(|s| s.fault_active = initial_fault);
+    app::ipc::update_status(|s| s.fault_active = initial_fault);
 
     // COM-001/002: LEDs, B1 and USART3 must work before the health check.
-    if !plat::gpio_init() || !plat::uart_init() {
-        fault::fatal();
+    if !platform::plat::gpio_init() || !platform::plat::uart_init() {
+        app::fault::fatal();
     }
 
-    let info = comms::BootInfo {
+    let info = app::comms::BootInfo {
         reset_cause,
         handover,
     };
 
-    let thread = health::thread(handover);
+    let thread = app::health::thread(handover);
     thread.set_priority(PRIO_HEALTH);
     thread.start();
 
-    let thread = comms::thread(info);
+    let thread = app::comms::thread(info);
     thread.set_priority(PRIO_COMMS);
     thread.start();
 
-    let thread = button::thread();
+    let thread = app::button::thread();
     thread.set_priority(PRIO_BUTTON);
     thread.start();
 
-    let thread = led::thread(initial_fault);
+    let thread = app::led::thread(initial_fault);
     thread.set_priority(PRIO_LED);
     thread.start();
 }

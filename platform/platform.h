@@ -9,7 +9,7 @@
  * Zephyr's Rust module binds the kernel, GPIO and flash APIs.  The UART,
  * watchdog, devicetree partition and fatal-error paths of this application
  * are not covered yet, so this layer wraps them in plain functions with
- * fixed arguments.  src/plat.rs declares the same functions for Rust; keep
+ * fixed arguments.  src/platform/plat.rs declares the same functions for Rust; keep
  * the two files in step.  No application logic lives here.
  */
 

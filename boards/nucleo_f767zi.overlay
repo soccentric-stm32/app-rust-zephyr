@@ -1,5 +1,5 @@
 /*
- * app.overlay - NUCLEO-F767ZI flash layout for the project A/B bootloader
+ * nucleo_f767zi.overlay - NUCLEO-F767ZI flash layout for the project A/B bootloader
  *
  * Author:  Sandesh Ghimire <sandesh@soccentric.com>
  * Date:    2026-11-03

@@ -5,9 +5,9 @@
 
 use core::sync::atomic::{AtomicBool, Ordering};
 
-use crate::board;
-use crate::hwlink::frame::crc32;
-use crate::plat;
+use crate::platform::board;
+use crate::platform::plat;
+use crate::protocol::hwlink::frame::crc32;
 
 #[derive(Clone, Copy)]
 pub struct Handover {
