@@ -2,6 +2,8 @@
 
 The NUCLEO-F767ZI demo application written in Rust on Zephyr RTOS, using Zephyr's official Rust module. It runs under the A/B bootloader from either slot and does exactly the same job as the C FreeRTOS demo: LED patterns, the user button, HWLINK communication with the desktop GUI, watchdog supervision and self-confirmation after a health check. All application logic is Rust; a thin C layer covers the drivers the Rust bindings do not reach yet. It completes the C/Rust by FreeRTOS/Zephyr comparison set.
 
+[![The Rust Zephyr application starting on the board](https://raw.githubusercontent.com/soccentric-stm32/soccentric-stm32.github.io/main/assets/shots/term-rust-zephyr.webp)](https://soccentric-stm32.github.io/#rust-zephyr)
+
 ## Features
 
 - Application logic in Rust (`no_std`, no allocator) on Zephyr's Rust module
