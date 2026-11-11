@@ -30,7 +30,14 @@ pub fn thread() {
     let mut long_sent = false;
     let mut last_checkin = candidate_since;
 
+    let mut report = crate::log::TaskReport::new(
+        2,
+        "Button",
+        "debounces B1, short press cycles the LED pattern, long press resets it",
+    );
+
     loop {
+        report.tick();
         plat::button_wait(POLL_MS);
 
         let now = plat::now_ms();

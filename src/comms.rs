@@ -412,7 +412,14 @@ pub fn thread(info: BootInfo) {
     let mut last_checkin = plat::now_ms();
     ipc::check_in(ipc::TASK_COMMS);
 
+    let mut report = crate::log::TaskReport::new(
+        4,
+        "Comms",
+        "serves HWLINK on USART3: info, identity, button and LED commands",
+    );
+
     loop {
+        report.tick();
         plat::uart_wait(WAIT_MS);
 
         loop {

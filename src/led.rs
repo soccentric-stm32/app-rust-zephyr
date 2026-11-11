@@ -107,7 +107,13 @@ pub fn thread(initial_fault: bool) {
         fault_active,
     );
 
+    let mut report = crate::log::TaskReport::new(
+        1,
+        "LED",
+        "drives LD1-LD3 patterns, LD3 shows health and fault state",
+    );
     loop {
+        report.tick();
         while let Some(command) = ipc::LED_COMMANDS.try_receive() {
             match command {
                 LedCommand::Set {

@@ -70,7 +70,13 @@ pub fn thread(handover: Handover) {
         0,
     );
 
+    let mut report = crate::log::TaskReport::new(
+        3,
+        "Health",
+        "watches thread check-ins, kicks the watchdog, confirms the slot",
+    );
     loop {
+        report.tick();
         // Health is a thread too: its own check-in is the loop itself.
         ipc::check_in(ipc::TASK_HEALTH);
 

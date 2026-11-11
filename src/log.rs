@@ -53,3 +53,39 @@ macro_rules! log_warn {
 macro_rules! log_info {
     ($($arg:tt)*) => { $crate::log::write(b'I', format_args!($($arg)*)) };
 }
+
+/// Once-a-second "task <n> <name>: <purpose>" line for one task.  Each task
+/// owns one and calls `tick()` once per loop iteration; it prints at most once
+/// a second however often the loop wakes.
+pub struct TaskReport {
+    number: u8,
+    name: &'static str,
+    purpose: &'static str,
+    last: Option<u64>,
+}
+
+impl TaskReport {
+    pub const fn new(number: u8, name: &'static str, purpose: &'static str) -> Self {
+        Self {
+            number,
+            name,
+            purpose,
+            last: None,
+        }
+    }
+
+    pub fn tick(&mut self) {
+        let now = plat::now_ms();
+        let due = match self.last {
+            Some(last) => now.wrapping_sub(last) >= 1000,
+            None => true,
+        };
+        if due {
+            self.last = Some(now);
+            write(
+                b'I',
+                format_args!("task {} {}: {}", self.number, self.name, self.purpose),
+            );
+        }
+    }
+}
