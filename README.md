@@ -2,7 +2,36 @@
 
 The NUCLEO-F767ZI demo application written in Rust on Zephyr RTOS, using Zephyr's official Rust module. It runs under the A/B bootloader from either slot and does exactly the same job as the C FreeRTOS demo: LED patterns, the user button, HWLINK communication with the desktop GUI, watchdog supervision and self-confirmation after a health check. All application logic is Rust; a thin C layer covers the drivers the Rust bindings do not reach yet. It completes the C/Rust by FreeRTOS/Zephyr comparison set.
 
-[![The Rust Zephyr application starting on the board](https://raw.githubusercontent.com/soccentric-stm32/soccentric-stm32.github.io/main/assets/shots/term-rust-zephyr.webp)](https://soccentric-stm32.github.io/#rust-zephyr)
+## Debug terminal
+
+The debug log from a reset on a NUCLEO-F767ZI (USART6, 115200 8N1), recorded from the board. [Watch it replay line by line](https://soccentric-stm32.github.io/#rust-zephyr) on the project page.
+
+```console
+$ make flash PORT=/dev/ttyACM0
+Activate: ok, device is resetting
+[      0] BOOT I start v0.1.0 d389f50d03e7, reset 0x04000000
+[      5] BOOT I init: clock 216 MHz, PLL locked
+[      9] BOOT I init: HWLINK on USART3, 115200 8N1
+[     14] BOOT I scan: searching for an application
+[    335] BOOT I init: flash dual bank, writes enabled
+[    340] BOOT I slot A: ok, confirmed
+[    344] BOOT I slot B: ok, pending
+[    347] BOOT I sel: slot B on trial, count 1
+[    351] BOOT I listen: 500 ms for a host
+[    855] BOOT I boot slot B, trial 2
+[      1] R-FRT I start v0.1.0 56d66485f7fa, slot B on trial, reset reset pin
+[      1] R-FRT I start v0.1.0 56d66485f7fa, slot B on trial, reset reset pin
+[      1] R-FRT I task 3 Health: watches task check-ins, kicks the watchdog, confirms the slot
+[      1] R-FRT I task 4 Comms: serves HWLINK on USART3: info, identity, button and LED commands
+[      1] R-FRT I task 2 Button: debounces B1, short press cycles the LED pattern, long press resets it
+[      1] R-FRT I task 1 LED: drives LD1-LD3 patterns, LD3 shows health and fault state
+[ ... 17 lines omitted: the same task lines, once a second ... ]
+[   5001] R-FRT I health: passed, CONFIRMED written
+[   5001] R-FRT I task 2 Button: debounces B1, short press cycles the LED pattern, long press resets it
+[   5001] R-FRT I task 1 LED: drives LD1-LD3 patterns, LD3 shows health and fault state
+[   5043] R-FRT I task 4 Comms: serves HWLINK on USART3: info, identity, button and LED commands
+[   6001] R-FRT I task 3 Health: watches task check-ins, kicks the watchdog, confirms the slot
+```
 
 ## Features
 
