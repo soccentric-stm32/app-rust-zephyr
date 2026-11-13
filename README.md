@@ -6,6 +6,11 @@ The NUCLEO-F767ZI demo application written in Rust on Zephyr RTOS, using Zephyr'
 
 The debug log from a reset on a NUCLEO-F767ZI (USART6, 115200 8N1), recorded from the board. [Watch it replay line by line](https://soccentric-stm32.github.io/#rust-zephyr) on the project page.
 
+![Debug terminal output from a reset on a NUCLEO-F767ZI](docs/debug-terminal.svg)
+
+<details>
+<summary>Plain text</summary>
+
 ```console
 $ make flash PORT=/dev/ttyACM0
 Activate: ok, device is resetting
@@ -32,6 +37,8 @@ Activate: ok, device is resetting
 [   5043] R-FRT I task 4 Comms: serves HWLINK on USART3: info, identity, button and LED commands
 [   6001] R-FRT I task 3 Health: watches task check-ins, kicks the watchdog, confirms the slot
 ```
+
+</details>
 
 ## Features
 
